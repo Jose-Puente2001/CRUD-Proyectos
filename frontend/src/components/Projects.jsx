@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { getProjects } from '../api/projects_api.js';
+import { getProjects, deleteProjects } from '../api/projects_api.js';
 import { useNavigate } from "react-router-dom";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -17,14 +17,18 @@ const Projects = () => {
     loadProjects();
   }, []);
 
+  const deleteProjectCliente = async (id) => {
+      setProjects(projects.filter((project) => project.id !== id));
+      await deleteProjects(id);
+  };
 
- const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
       <Box width="80%" padding="16px">
         <h1 style={{ textAlign: 'center' }}>CRUD de Proyectos</h1>
-        <Button onClick={()=> navigate('/agregarproyectos')}variant="contained" color="success">
+        <Button onClick={() => navigate('/agregarproyectos')} variant="contained" color="success">
           Agregar
         </Button>
         <TableContainer component={Paper}>
@@ -46,15 +50,20 @@ const Projects = () => {
                   <TableCell component="th" scope="row">{data.id}</TableCell>
                   <TableCell align="right">{data.cliente}</TableCell>
                   <TableCell align="right">{data.nombre_proyecto}</TableCell>
-                  <TableCell align="right"></TableCell>
+                  <TableCell align="right">{data.country}</TableCell>
                   <TableCell align="right">{data.estatus}</TableCell>
                   <TableCell align="right">
-                    <Button variant="contained" color="warning" startIcon={<EditIcon />}>
-                    </Button>
+                    <Button variant="contained" color="warning" startIcon={<EditIcon />} 
+                     onClick={()=> navigate(`/actualizar/${data.id}/edit`)}
+                    />
                   </TableCell>
                   <TableCell align="right">
-                    <Button variant="contained" color="error" startIcon={<DeleteIcon />}>
-                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      startIcon={<DeleteIcon />}
+                      onClick={() => deleteProjectCliente(data.id)}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
