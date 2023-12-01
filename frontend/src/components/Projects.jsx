@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 import { getProjects } from '../api/projects_api.js';
+import { useNavigate } from "react-router-dom";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
-
   const loadProjects = async () => {
     const response = await getProjects();
     const result = response.data;
     setProjects(result);
-    console.log(result);
   };
-
+  
   useEffect(() => {
     loadProjects();
   }, []);
+
+
+ const navigate = useNavigate()
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
       <Box width="80%" padding="16px">
         <h1 style={{ textAlign: 'center' }}>CRUD de Proyectos</h1>
-        <Button variant="contained" color="success">
+        <Button onClick={()=> navigate('/agregarproyectos')}variant="contained" color="success">
           Agregar
         </Button>
         <TableContainer component={Paper}>

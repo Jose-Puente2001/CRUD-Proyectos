@@ -1,9 +1,16 @@
+import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import Projects from './components/Projects'
+import CreateProjects from './components/CreateProjects'
 
 function App() {
   return (
     <>
-    <Projects />
+    <BrowserRouter>
+    <Routes>
+    <Route path="/" element={<Projects />} />
+    <Route path="/agregarproyectos" element={<CreateProjects />} />
+    </Routes>
+    </BrowserRouter>
     </>
   )
 }
