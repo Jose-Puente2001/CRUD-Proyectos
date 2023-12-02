@@ -10,6 +10,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import withReactContent from 'sweetalert2-react-content';
 import { Link, useParams,useNavigate } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 
 const CreateProjects = () => {
   const {
@@ -23,6 +24,7 @@ const CreateProjects = () => {
     cliente: "",
     nombre_proyecto: "",
     country: "",
+    mapa: "",
     estatus: ""
   });
 
@@ -60,10 +62,37 @@ const handleInputChange = (e) => {
       cliente: result.cliente,
       nombre_proyecto: result.nombre_proyecto,
       country: result.country,
+      mapa: result.mapa,
       estatus: result.estatus
     });
   };
 
+  const [mapCoordinates, setMapCoordinates] = useState({ lat: -17.7833, lng: -55.7667 });
+
+ const MapEvents = () => {
+  const map = useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      setMapCoordinates({ lat, lng });
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+          const { state, country } = data.address;
+          console.log(data.address)
+          setProject((prevProject) => ({
+            ...prevProject,
+            country,
+            mapa: `${state}, ${country}`
+          }));
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+  });
+
+  return null;
+};
   useEffect(() => {
     if (params.id) {
       loadProjects(params.id);
@@ -142,6 +171,36 @@ const handleInputChange = (e) => {
               {errors.country && (
                 <span>{errors.country.message}</span>
               )}
+            </div>
+          </div>
+
+       <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+            <FormLabel>MAPA</FormLabel>
+            <div>
+              <MapContainer
+                center={[mapCoordinates.lat, mapCoordinates.lng]}
+                zoom={13}
+                style={{ height: '300px' }}
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <MapEvents />
+                <Marker position={[mapCoordinates.lat, mapCoordinates.lng]} />
+              </MapContainer>
+              <TextField
+  value={project.mapa}
+  {...register('mapa', {
+    onChange: handleInputChange,
+    required: {
+      value: true,
+      message: 'La ubicación del proyecto es requerida',
+    },
+    minLength: {
+      value: 3,
+      message: 'La ubicación del proyecto debe tener al menos 3 caracteres',
+    },
+  })}
+/>
+              {errors.mapa && <span>{errors.mapa.message}</span>}
             </div>
           </div>
 
