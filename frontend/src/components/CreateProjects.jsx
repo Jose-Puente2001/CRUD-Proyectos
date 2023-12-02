@@ -78,7 +78,6 @@ const handleInputChange = (e) => {
         .then(response => response.json())
         .then(data => {
           const { state, country } = data.address;
-          console.log(data.address)
           setProject((prevProject) => ({
             ...prevProject,
             country,
