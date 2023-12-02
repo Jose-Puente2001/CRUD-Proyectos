@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, useMapEvents, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 
@@ -10,7 +10,18 @@ const MapView = ({ setLocation }) => {
   const handleMapClick = async (e) => {
     setMarkerPosition(e.latlng);
     const { lat, lng } = e.latlng;
-    setLocation({ lat, lng, country });
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+      );
+      const { address } = response.data;
+      const country = address?.country;
+      setCountry(country);
+    } catch (error) {
+      console.error('Error fetching country:', error);
+    }
+
+    setLocation({ country });
   };
 
   const LocationMarker = () => {
@@ -19,28 +30,14 @@ const MapView = ({ setLocation }) => {
     });
 
     return markerPosition === null ? null : (
-      <Marker position={markerPosition} interactive={false} />
+      <Marker position={markerPosition} interactive={false}>
+        <Popup>
+          Latitude: {markerPosition.lat}<br />
+          Longitude: {markerPosition.lng}
+        </Popup>
+      </Marker>
     );
   };
-
-  useEffect(() => {
-    const fetchCountry = async () => {
-      try {
-        const response = await axios.get(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${markerPosition.lat}&lon=${markerPosition.lng}`
-        );
-        const { address } = response.data;
-        const country = address?.country;
-        setCountry(country);
-      } catch (error) {
-        console.error('Error fetching country:', error);
-      }
-    };
-
-    if (markerPosition) {
-      fetchCountry();
-    }
-  }, [markerPosition]);
 
   return (
     <MapContainer

@@ -4,7 +4,6 @@ import TextField from '@mui/material/TextField';
 import { FormLabel } from '@mui/material';
 import Button from '@mui/material/Button';
 import { addProjects, getProjectById, updateProjects  } from '../api/projects_api.js';
-import MapView from './MapView';
 import Swal from 'sweetalert2';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -144,7 +143,6 @@ const handleInputChange = (e) => {
               )}
             </div>
           </div>
-
           {params.id && (
             <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
               <FormLabel>ESTATUS</FormLabel>
@@ -185,5 +183,4 @@ const handleInputChange = (e) => {
 };
 
 export default CreateProjects;
-
 
