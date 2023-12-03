@@ -15,9 +15,9 @@ export const getProjectById = async (req, res) => {
 
 export const addProjects = async (req, res) => {
  
- const {cliente, nombre_proyecto, country} = req.body
- const [rows] = await connection.query("INSERT INTO project(cliente, nombre_proyecto, country) VALUES(?, ?, ?)", 
- [cliente, nombre_proyecto, country]
+ const {cliente, nombre_proyecto, country, mapa} = req.body
+ const [rows] = await connection.query("INSERT INTO project(cliente, nombre_proyecto, country, mapa) VALUES(?, ?, ?, ?)", 
+ [cliente, nombre_proyecto, country, mapa]
   );
 
 
@@ -26,8 +26,8 @@ export const addProjects = async (req, res) => {
 export const updateProjects = async (req, res) => {
 
 const {id} = req.params
-const {cliente, nombre_proyecto, country, estatus} = req.body
-const [result] = await connection.query("UPDATE project SET cliente = ?, nombre_proyecto = ?, country = ?, estatus = ? WHERE id = ?", [cliente, nombre_proyecto, country, estatus, id])
+const {cliente, nombre_proyecto, country, mapa, estatus} = req.body
+const [result] = await connection.query("UPDATE project SET cliente = ?, nombre_proyecto = ?, country = ?, mapa = ?, estatus = ? WHERE id = ?", [cliente, nombre_proyecto, country, mapa, estatus, id])
 }
 
 export const deleteProjects = async (req, res) => {

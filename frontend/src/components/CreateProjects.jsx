@@ -4,13 +4,13 @@ import TextField from '@mui/material/TextField';
 import { FormLabel } from '@mui/material';
 import Button from '@mui/material/Button';
 import { addProjects, getProjectById, updateProjects  } from '../api/projects_api.js';
-import MapView from './MapView';
 import Swal from 'sweetalert2';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import withReactContent from 'sweetalert2-react-content';
 import { Link, useParams,useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const CreateProjects = () => {
   const {
@@ -42,15 +42,12 @@ const handleInputChange = (e) => {
 
   const onSubmit = async (data) => {
     setEditing(true);
+    const updatedData = { ...project, ...data };
     if (params.id) {
-      const response = await updateProjects(params.id, data)
+      const response = await updateProjects(params.id, updatedData)
     } else {
-      const response = await addProjects(data);
-      const MySwal = withReactContent(Swal);
-      MySwal.fire({
-        title: <p>Proyecto Agregado Exitosamente</p>,
-        icon: 'success',
-      });
+      const response = await addProjects(updatedData);
+    
     }
     reset();
   };
@@ -111,20 +108,10 @@ const handleInputChange = (e) => {
             <div>
               <TextField
                 value={project.cliente}
-                {...register('cliente', {
-                  onChange: handleInputChange,
-                  required: {
-                    value: true,
-                    message: 'El nombre del cliente es requerido',
-                  },
-                  minLength: {
-                    value: 3,
-                    message: 'El nombre del cliente debe tener al menos 3 caracteres',
-                  },
-                })}
+                ref={register} 
+                {...register('cliente', {onChange: handleInputChange })}
               />
             </div>
-            {errors.cliente && <span>{errors.cliente.message}</span>}
           </div>
 
           <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
@@ -132,22 +119,10 @@ const handleInputChange = (e) => {
             <div>
               <TextField
                 value={project.nombre_proyecto}
-                {...register('nombre_proyecto', {
-                  onChange: handleInputChange,
-                  required: {
-                    value: true,
-                    message: 'El nombre del proyecto es requerido',
-                  },
-                  minLength: {
-                    value: 3,
-                    message: 'El nombre del proyecto debe tener al menos 3 caracteres',
-                  },
-                })}
+                ref={register} 
+                {...register('nombre_proyecto', {onChange: handleInputChange })}
               />
             </div>
-            {errors.nombre_proyecto && (
-              <span>{errors.nombre_proyecto.message}</span>
-            )}
           </div>
 
           <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
@@ -155,21 +130,9 @@ const handleInputChange = (e) => {
             <div>
               <TextField
                 value={project.country}
-                {...register('country', {
-                  onChange: handleInputChange,
-                  required: {
-                    value: true,
-                    message: 'La ubicación del proyecto es requerida',
-                  },
-                  minLength: {
-                    value: 3,
-                    message: 'La ubicación del proyecto debe tener al menos 3 caracteres',
-                  },
-                })}
+                ref={register} 
+                {...register('country', {onChange: handleInputChange })}
               />
-              {errors.country && (
-                <span>{errors.country.message}</span>
-              )}
             </div>
           </div>
 
@@ -179,7 +142,7 @@ const handleInputChange = (e) => {
               <MapContainer
                 center={[mapCoordinates.lat, mapCoordinates.lng]}
                 zoom={13}
-                style={{ height: '300px' }}
+                style={{ widht: '300px', height: '300px' }}
               >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <MapEvents />
@@ -187,19 +150,9 @@ const handleInputChange = (e) => {
               </MapContainer>
               <TextField
   value={project.mapa}
-  {...register('mapa', {
-    onChange: handleInputChange,
-    required: {
-      value: true,
-      message: 'La ubicación del proyecto es requerida',
-    },
-    minLength: {
-      value: 3,
-      message: 'La ubicación del proyecto debe tener al menos 3 caracteres',
-    },
-  })}
+  ref={register} 
+  {...register('mapa', {onChange: handleInputChange })}
 />
-              {errors.mapa && <span>{errors.mapa.message}</span>}
             </div>
           </div>
 
@@ -209,24 +162,12 @@ const handleInputChange = (e) => {
               <div>
                 <Select
                   value={project.estatus}
-                  {...register('estatus', {
-                    onChange: handleInputChange,
-                    required: {
-                      value: true,
-                      message: 'El estatus del proyecto es requerido',
-                    },
-                    minLength: {
-                      value: 3,
-                      message: 'Elnombre del proyecto debe tener al menos 3 caracteres',
-                    },
-                  })}
+                  ref={register} 
+                  {...register('estatus', {onChange: handleInputChange })}
                   >
                    <MenuItem value="EN CURSO">EN CURSO</MenuItem>
                   <MenuItem value="FINALIZADO">FINALIZADO</MenuItem>
                 </Select>
-                {errors.estatus && (
-                  <span>{errors.estatus.message}</span>
-                )}
               </div>
             </div>
           )}
