@@ -12,6 +12,7 @@ import { Link, useParams,useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
+
 const CreateProjects = () => {
   const {
     register,
@@ -44,10 +45,19 @@ const handleInputChange = (e) => {
     setEditing(true);
     const updatedData = { ...project, ...data };
     if (params.id) {
+      const MySwal = withReactContent(Swal);
+      MySwal.fire({
+      title: <p>Proyecto Actualizado Exitosamente</p>,
+      icon: "success",
+    });
       const response = await updateProjects(params.id, updatedData)
     } else {
+      const MySwal = withReactContent(Swal);
+      MySwal.fire({
+      title: <p>Proyecto Agregado Exitosamente</p>,
+      icon: "success",
+    });
       const response = await addProjects(updatedData);
-    
     }
     reset();
   };
