@@ -9,6 +9,8 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import withReactContent from 'sweetalert2-react-content';
 import { Link, useParams,useNavigate } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const CreateProjects = () => {
   const {
@@ -22,6 +24,7 @@ const CreateProjects = () => {
     cliente: "",
     nombre_proyecto: "",
     country: "",
+    mapa: "",
     estatus: ""
   });
 
@@ -39,15 +42,12 @@ const handleInputChange = (e) => {
 
   const onSubmit = async (data) => {
     setEditing(true);
+    const updatedData = { ...project, ...data };
     if (params.id) {
-      const response = await updateProjects(params.id, data)
+      const response = await updateProjects(params.id, updatedData)
     } else {
-      const response = await addProjects(data);
-      const MySwal = withReactContent(Swal);
-      MySwal.fire({
-        title: <p>Proyecto Agregado Exitosamente</p>,
-        icon: 'success',
-      });
+      const response = await addProjects(updatedData);
+    
     }
     reset();
   };
@@ -59,10 +59,36 @@ const handleInputChange = (e) => {
       cliente: result.cliente,
       nombre_proyecto: result.nombre_proyecto,
       country: result.country,
+      mapa: result.mapa,
       estatus: result.estatus
     });
   };
 
+  const [mapCoordinates, setMapCoordinates] = useState({ lat: -17.7833, lng: -55.7667 });
+
+ const MapEvents = () => {
+  const map = useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      setMapCoordinates({ lat, lng });
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+          const { state, country } = data.address;
+          setProject((prevProject) => ({
+            ...prevProject,
+            country,
+            mapa: `${state}, ${country}`
+          }));
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+  });
+
+  return null;
+};
   useEffect(() => {
     if (params.id) {
       loadProjects(params.id);
@@ -82,20 +108,10 @@ const handleInputChange = (e) => {
             <div>
               <TextField
                 value={project.cliente}
-                {...register('cliente', {
-                  onChange: handleInputChange,
-                  required: {
-                    value: true,
-                    message: 'El nombre del cliente es requerido',
-                  },
-                  minLength: {
-                    value: 3,
-                    message: 'El nombre del cliente debe tener al menos 3 caracteres',
-                  },
-                })}
+                ref={register} 
+                {...register('cliente', {onChange: handleInputChange })}
               />
             </div>
-            {errors.cliente && <span>{errors.cliente.message}</span>}
           </div>
 
           <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
@@ -103,22 +119,10 @@ const handleInputChange = (e) => {
             <div>
               <TextField
                 value={project.nombre_proyecto}
-                {...register('nombre_proyecto', {
-                  onChange: handleInputChange,
-                  required: {
-                    value: true,
-                    message: 'El nombre del proyecto es requerido',
-                  },
-                  minLength: {
-                    value: 3,
-                    message: 'El nombre del proyecto debe tener al menos 3 caracteres',
-                  },
-                })}
+                ref={register} 
+                {...register('nombre_proyecto', {onChange: handleInputChange })}
               />
             </div>
-            {errors.nombre_proyecto && (
-              <span>{errors.nombre_proyecto.message}</span>
-            )}
           </div>
 
           <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
@@ -126,21 +130,29 @@ const handleInputChange = (e) => {
             <div>
               <TextField
                 value={project.country}
-                {...register('country', {
-                  onChange: handleInputChange,
-                  required: {
-                    value: true,
-                    message: 'La ubicación del proyecto es requerida',
-                  },
-                  minLength: {
-                    value: 3,
-                    message: 'La ubicación del proyecto debe tener al menos 3 caracteres',
-                  },
-                })}
+                ref={register} 
+                {...register('country', {onChange: handleInputChange })}
               />
-              {errors.country && (
-                <span>{errors.country.message}</span>
-              )}
+            </div>
+          </div>
+
+       <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+            <FormLabel>MAPA</FormLabel>
+            <div>
+              <MapContainer
+                center={[mapCoordinates.lat, mapCoordinates.lng]}
+                zoom={13}
+                style={{ widht: '300px', height: '300px' }}
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <MapEvents />
+                <Marker position={[mapCoordinates.lat, mapCoordinates.lng]} />
+              </MapContainer>
+              <TextField
+  value={project.mapa}
+  ref={register} 
+  {...register('mapa', {onChange: handleInputChange })}
+/>
             </div>
           </div>
           {params.id && (
@@ -149,24 +161,12 @@ const handleInputChange = (e) => {
               <div>
                 <Select
                   value={project.estatus}
-                  {...register('estatus', {
-                    onChange: handleInputChange,
-                    required: {
-                      value: true,
-                      message: 'El estatus del proyecto es requerido',
-                    },
-                    minLength: {
-                      value: 3,
-                      message: 'Elnombre del proyecto debe tener al menos 3 caracteres',
-                    },
-                  })}
+                  ref={register} 
+                  {...register('estatus', {onChange: handleInputChange })}
                   >
                    <MenuItem value="EN CURSO">EN CURSO</MenuItem>
                   <MenuItem value="FINALIZADO">FINALIZADO</MenuItem>
                 </Select>
-                {errors.estatus && (
-                  <span>{errors.estatus.message}</span>
-                )}
               </div>
             </div>
           )}
